@@ -1,0 +1,17 @@
+syntax = "proto3";
+package v1;
+option go_package = "pkg/gen/v1";
+
+message BaseResponse {
+    bool success = 1;
+    string message = 2;
+    string couponId = 3;
+}
+
+message IssueCouponReq {
+    string campaignId = 1;
+}
+
+message IssueCouponRes {
+    BaseResponse result = 1;
+}

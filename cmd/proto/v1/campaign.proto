@@ -1,0 +1,37 @@
+syntax = "proto3";
+package v1;
+option go_package = "pkg/gen/v1";
+
+// base VO
+message BaseResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message CampaignInfo {
+    string CampaignId = 1;
+    string StartDate = 2;
+    string ExpiredDate = 3;
+    repeated string PublishedCoupon = 4;
+}
+
+// ========================================
+message CreateCampaignReq {
+    string campaignId = 1;
+    string startDate = 2;
+    string expiredDate = 3;
+    int64 maxCoupon = 4;
+}
+
+message CreateCampaignRes {
+    BaseResponse result = 1;
+}
+
+message GetCampaignReq {
+    string campaignId = 1;
+}
+
+message GetCampaignRes {
+    BaseResponse result = 1;
+    CampaignInfo info = 2;
+}

@@ -15,12 +15,12 @@ type Campaign struct {
 	MaxCoupons           int
 	UnPublishedCouponIds []string // 발행 안된 coupon id 관리용
 	Coupons              map[string]*models.Coupon
-	mu                   sync.RWMutex
+	mutex                sync.RWMutex
 }
 
 type CampaignManager struct {
 	campaigns map[string]*Campaign
-	mu        sync.RWMutex
+	mutex     sync.RWMutex
 }
 
 func NewCampaignManager() *CampaignManager {
@@ -31,8 +31,8 @@ func NewCampaignManager() *CampaignManager {
 }
 
 func (v *CampaignManager) CreateCampaign(id string, start, end time.Time, maxCoupon int) error {
-	v.mu.Lock()
-	defer v.mu.Unlock()
+	v.mutex.Lock()
+	defer v.mutex.Unlock()
 
 	if _, exists := v.campaigns[id]; exists {
 		return errors.New("campaign already exists")
@@ -69,16 +69,16 @@ func (v *CampaignManager) CreateCampaign(id string, start, end time.Time, maxCou
 }
 
 func (v *CampaignManager) PublishCoupon(campaignId string) (*models.Coupon, error) {
-	v.mu.RLock()
+	v.mutex.RLock()
 	campaign, exists := v.campaigns[campaignId]
-	v.mu.RUnlock()
+	v.mutex.RUnlock()
 
 	if !exists {
 		return nil, errors.New("campaign is not exists")
 	}
 
-	campaign.mu.Lock()
-	defer campaign.mu.Unlock()
+	campaign.mutex.Lock()
+	defer campaign.mutex.Unlock()
 
 	// 요청 시점 확인
 	now := time.Now()
@@ -102,16 +102,16 @@ func (v *CampaignManager) PublishCoupon(campaignId string) (*models.Coupon, erro
 }
 
 func (v *CampaignManager) UseCoupon(campaignId, couponId string) error {
-	v.mu.RLock()
+	v.mutex.RLock()
 	campaign, exists := v.campaigns[campaignId]
-	v.mu.RUnlock()
+	v.mutex.RUnlock()
 
 	if !exists {
 		return errors.New("campaign is not exists")
 	}
 
-	campaign.mu.Lock()
-	defer campaign.mu.Unlock()
+	campaign.mutex.Lock()
+	defer campaign.mutex.Unlock()
 
 	coupon, exists := campaign.Coupons[couponId]
 	if !exists {
@@ -135,6 +135,12 @@ func (v *CampaignManager) UseCoupon(campaignId, couponId string) error {
 	}
 
 	coupon.UseYn = true
+
+	return nil
+}
+
+// TODO : 캠페인 정보 조회 (발급 성공한 쿠폰만 모아서 return)
+func (v *CampaignManager) GetCampaignInfo(campaignId string) error {
 
 	return nil
 }
