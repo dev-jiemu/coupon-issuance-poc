@@ -68,6 +68,8 @@ func (v *CampaignManager) CreateCampaign(id string, start, end time.Time, maxCou
 			return fmt.Errorf("failed to generate coupon ID: %w", err)
 		}
 
+		fmt.Printf("generated coupon ID: %s \n", couponId)
+
 		if existingCouponIDs[couponId] { // 중복이면 다시 만들기
 			continue
 		}
