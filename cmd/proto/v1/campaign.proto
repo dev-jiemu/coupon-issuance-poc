@@ -1,12 +1,8 @@
 syntax = "proto3";
 package v1;
-option go_package = "pkg/gen/v1";
+option go_package = "github.com/dev-jiemu/coupon-issuance-poc/pkg/gen/v1;v1";
 
-// base VO
-message BaseResponse {
-    bool success = 1;
-    string message = 2;
-}
+import "v1/common.proto";
 
 message CampaignInfo {
     string CampaignId = 1;
@@ -34,4 +30,9 @@ message GetCampaignReq {
 message GetCampaignRes {
     BaseResponse result = 1;
     CampaignInfo info = 2;
+}
+
+service CampaignService {
+    rpc CreateCampaign(CreateCampaignReq) returns (CreateCampaignRes) {}
+    rpc GetCampaign(GetCampaignReq) returns (GetCampaignRes) {}
 }

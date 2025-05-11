@@ -1,12 +1,9 @@
 syntax = "proto3";
 package v1;
-option go_package = "pkg/gen/v1";
+option go_package = "github.com/dev-jiemu/coupon-issuance-poc/pkg/gen/v1;v1";
 
-message BaseResponse {
-    bool success = 1;
-    string message = 2;
-    string couponId = 3;
-}
+import "v1/campaign.proto";
+import "v1/common.proto";
 
 message IssueCouponReq {
     string campaignId = 1;
@@ -14,4 +11,9 @@ message IssueCouponReq {
 
 message IssueCouponRes {
     BaseResponse result = 1;
+    string couponCode = 2;  // 발급된 쿠폰 코드
+}
+
+service CouponService {
+    rpc IssueCoupon(IssueCouponReq) returns (IssueCouponRes) {}
 }

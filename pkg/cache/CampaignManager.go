@@ -24,7 +24,7 @@ type CampaignManager struct {
 }
 
 func NewCampaignManager() *CampaignManager {
-	fmt.Printf("Create Campaign Manager ** ")
+	fmt.Printf("Create Campaign Manager ** \n")
 	return &CampaignManager{
 		campaigns: make(map[string]*Campaign),
 	}
