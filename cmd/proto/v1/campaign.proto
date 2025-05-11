@@ -8,7 +8,7 @@ message CampaignInfo {
     string CampaignId = 1;
     string StartDate = 2;
     string ExpiredDate = 3;
-    repeated string PublishedCoupon = 4;
+    repeated string AllCouponIds = 4;
 }
 
 // ========================================

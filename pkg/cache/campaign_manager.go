@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dev-jiemu/coupon-issuance-poc/pkg/models"
+	"github.com/dev-jiemu/coupon-issuance-poc/pkg/utils"
 	"sync"
 	"time"
 )
@@ -12,16 +13,25 @@ type Campaign struct {
 	CampaignId           string
 	StartDate            time.Time
 	ExpiredDate          time.Time
-	MaxCoupons           int
+	MaxCoupons           int64
 	UnPublishedCouponIds []string // 발행 안된 coupon id 관리용
 	Coupons              map[string]*models.Coupon
 	mutex                sync.RWMutex
+}
+
+type CampaignInfo struct {
+	CampaignId   string
+	StartDate    string
+	ExpiredDate  string
+	AllCouponIds []string
 }
 
 type CampaignManager struct {
 	campaigns map[string]*Campaign
 	mutex     sync.RWMutex
 }
+
+var Manager *CampaignManager
 
 func NewCampaignManager() *CampaignManager {
 	fmt.Printf("Create Campaign Manager ** \n")
@@ -30,7 +40,7 @@ func NewCampaignManager() *CampaignManager {
 	}
 }
 
-func (v *CampaignManager) CreateCampaign(id string, start, end time.Time, maxCoupon int) error {
+func (v *CampaignManager) CreateCampaign(id string, start, end time.Time, maxCoupon int64) error {
 	v.mutex.Lock()
 	defer v.mutex.Unlock()
 
@@ -48,8 +58,21 @@ func (v *CampaignManager) CreateCampaign(id string, start, end time.Time, maxCou
 	}
 
 	// 미리 쿠폰 ID는 생성해둠 : 나중에 발급요청 할때 발급유무 변경
-	for i := 0; i < maxCoupon; i++ {
-		couponId := "" // TODO : unique ID Created
+	// 이렇게 하면 campaign_id 내에서는 중복을 체크하지만 campaign_id 끼리의 쿠폰 ID 는 겹칠 수도 있다는 단점이 있음...
+	existingCouponIDs := make(map[string]bool)
+	generatedCount := int64(0)
+
+	for generatedCount < maxCoupon {
+		couponId, err := utils.GenerateCouponCode(10)
+		if err != nil {
+			return fmt.Errorf("failed to generate coupon ID: %w", err)
+		}
+
+		if existingCouponIDs[couponId] { // 중복이면 다시 만들기
+			continue
+		}
+
+		existingCouponIDs[couponId] = true
 
 		coupon := &models.Coupon{
 			CouponId:    couponId,
@@ -139,8 +162,26 @@ func (v *CampaignManager) UseCoupon(campaignId, couponId string) error {
 	return nil
 }
 
-// TODO : 캠페인 정보 조회 (발급 성공한 쿠폰만 모아서 return)
-func (v *CampaignManager) GetCampaignInfo(campaignId string) error {
+// GetCampaignInfo : 캠페인 등록 시점에 쿠폰을 만드는게 아니라, 캠페인 시작 시점에 쿠폰이 실시간으로 바뀐다면 mutax 필요할듯
+// 지금으로썬 그저 조회만 하는 역할에 가까워서 mutax 뺌
+func (v *CampaignManager) GetCampaignInfo(campaignId string) (*CampaignInfo, error) {
+	campaign, exists := v.campaigns[campaignId]
+	if !exists {
+		return nil, errors.New("campaign is not exists")
+	}
 
-	return nil
+	ret := &CampaignInfo{}
+	ret.CampaignId = campaign.CampaignId
+	ret.StartDate = campaign.StartDate.Format("2006-01-02 15:04:05")
+	ret.ExpiredDate = campaign.ExpiredDate.Format("2006-01-02 15:04:05")
+
+	coupons := make([]string, 0, campaign.MaxCoupons)
+
+	for couponId, _ := range campaign.Coupons {
+		coupons = append(coupons, couponId)
+	}
+
+	ret.AllCouponIds = coupons
+
+	return ret, nil
 }

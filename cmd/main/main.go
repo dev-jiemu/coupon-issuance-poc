@@ -14,7 +14,7 @@ import (
 
 func main() {
 	// 1. 서버 최초 가동 : campaign 관리할 매니저 객체 생성
-	cache.NewCampaignManager()
+	cache.Manager = cache.NewCampaignManager()
 
 	// 2. service handlers
 	campaignServer := service.NewCampaignServer()
@@ -31,7 +31,6 @@ func main() {
 	couponPath, couponHandler := v1connect.NewCouponServiceHandler(couponServer)
 	mux.Handle(couponPath, couponHandler)
 
-	// 4. Start server with h2c for HTTP/2 without TLS
 	log.Println("RPC server starting on localhost:50051")
 	http.ListenAndServe(
 		"localhost:50051",

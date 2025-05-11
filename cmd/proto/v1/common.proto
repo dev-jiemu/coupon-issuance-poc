@@ -1,0 +1,10 @@
+syntax = "proto3";
+package v1;
+option go_package = "github.com/dev-jiemu/coupon-issuance-poc/pkg/gen/v1;v1";
+
+// 공통 응답 메시지
+message BaseResponse {
+  bool success = 1;
+  string message = 2;
+  string errorCode = 3;
+}
