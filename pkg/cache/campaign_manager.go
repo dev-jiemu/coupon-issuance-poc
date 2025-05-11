@@ -62,6 +62,7 @@ func (v *CampaignManager) CreateCampaign(id string, start, end time.Time, maxCou
 	existingCouponIDs := make(map[string]bool)
 	generatedCount := int64(0)
 
+	// 500 ~ 1000건 정도 라고 했으니까 이정돈 for문 써도 상관은 없는데... 더 많은 양의 생성이 필요하다면 고루틴 써야할듯함
 	for generatedCount < maxCoupon {
 		couponId, err := utils.GenerateCouponCode(10)
 		if err != nil {
@@ -86,6 +87,7 @@ func (v *CampaignManager) CreateCampaign(id string, start, end time.Time, maxCou
 
 		campaign.Coupons[couponId] = coupon
 		campaign.UnPublishedCouponIds = append(campaign.UnPublishedCouponIds, couponId)
+		generatedCount++
 	}
 
 	v.campaigns[id] = campaign
