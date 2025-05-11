@@ -19,7 +19,7 @@ func NewCouponServer() v1connect.CouponServiceHandler {
 
 // IssueCoupon implements the IssueCoupon RPC
 func (s *CouponServer) IssueCoupon(context context.Context, req *connect.Request[v1.IssueCouponReq]) (*connect.Response[v1.IssueCouponRes], error) {
-	log.Printf("IssueCoupon called with campaignId: %s", req.Msg.CampaignId)
+	log.Printf("IssueCoupon called with campaignId: %s \n", req.Msg.CampaignId)
 
 	couponRes := &v1.IssueCouponRes{
 		Result: &v1.BaseResponse{
@@ -31,11 +31,13 @@ func (s *CouponServer) IssueCoupon(context context.Context, req *connect.Request
 	// 쿠폰 발행 요청
 	coupon, err := cache.Manager.PublishCoupon(req.Msg.CampaignId)
 	if err != nil {
+		log.Printf("IssueCoupon failed with error: %v \n", err)
 		couponRes.Result.Success = false
 		couponRes.Result.Message = err.Error()
 	} else {
 		couponRes.CouponCode = coupon.CouponId
 	}
 
+	log.Printf("IssueCoupon result: %v \n", couponRes)
 	return connect.NewResponse(couponRes), nil
 }
