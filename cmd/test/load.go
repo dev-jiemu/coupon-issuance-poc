@@ -369,7 +369,7 @@ func (lt *LoadTester) printResults(elapsedSeconds float64) {
 	exhaustedCount := len(lt.metrics.exhaustedCampaigns)
 	lt.metrics.exhaustedMutex.Unlock()
 
-	fmt.Println("\n========== 테스트 결과 ==========")
+	fmt.Println("\n========== Test Result ==========")
 	fmt.Printf("총 실행 시간: %.2f초\n", elapsedSeconds)
 	fmt.Printf("총 요청 수: %d\n", total)
 	fmt.Printf("성공 요청: %d (%.2f%%)\n", success, float64(success)/float64(total)*100)
@@ -381,7 +381,7 @@ func (lt *LoadTester) printResults(elapsedSeconds float64) {
 	fmt.Printf("캠페인 생성: %d 성공, %d 실패\n", campaignCreateSuccess, campaignCreateFail)
 	fmt.Printf("쿠폰 발급: %d 성공, %d 실패\n", couponSuccess, couponFail)
 	fmt.Printf("캠페인 조회: %d 성공, %d 실패\n", campaignQuerySuccess, campaignQueryFail)
-	fmt.Println("==============================")
+	fmt.Println("====================================")
 }
 
 func main() {
