@@ -46,8 +46,8 @@ func (s *CampaignServer) CreateCampaign(context context.Context, req *connect.Re
 		return connect.NewResponse(campaignRes), endErr
 	}
 
-	startDate := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
-	expiredDate := time.Date(expired.Year(), expired.Month(), expired.Day(), 23, 59, 59, 0, expired.Location())
+	startDate := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, time.Local)
+	expiredDate := time.Date(expired.Year(), expired.Month(), expired.Day(), 23, 59, 59, 0, time.Local)
 
 	err := cache.Manager.CreateCampaign(req.Msg.CampaignId, startDate, expiredDate, req.Msg.MaxCoupon)
 	if err != nil {

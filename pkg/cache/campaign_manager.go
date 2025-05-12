@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dev-jiemu/coupon-issuance-poc/pkg/models"
 	"github.com/dev-jiemu/coupon-issuance-poc/pkg/utils"
+	"log"
 	"sync"
 	"time"
 )
@@ -109,7 +110,16 @@ func (v *CampaignManager) PublishCoupon(campaignId string) (*models.Coupon, erro
 
 	// 요청 시점 확인
 	now := time.Now()
-	if now.Before(campaign.StartDate) || now.After(campaign.ExpiredDate) {
+
+	startDateKST := campaign.StartDate.In(time.Local)
+	expiredDateKST := campaign.ExpiredDate.In(time.Local)
+
+	log.Printf("현재 시간: %v (UTC: %v)", now, now.UTC())
+	log.Printf("캠페인 시작 시간(KST): %v, 종료 시간(KST): %v", startDateKST, expiredDateKST)
+	log.Printf("시작 시간 이전 여부: %v, 종료 시간 이후 여부: %v", now.Before(startDateKST), now.After(expiredDateKST))
+
+	// KST로 변환된 시간으로 비교
+	if now.Before(startDateKST) || now.After(expiredDateKST) {
 		return nil, errors.New("campaign not valid at this time")
 	}
 
@@ -157,7 +167,14 @@ func (v *CampaignManager) UseCoupon(campaignId, couponId string) error {
 
 	// startDate 보다 이전이거나 expiredDate 이후면 에러처리
 	now := time.Now()
-	if now.Before(coupon.StartDate) || now.After(coupon.ExpiredDate) {
+	startDateKST := coupon.StartDate.In(time.Local)
+	expiredDateKST := coupon.ExpiredDate.In(time.Local)
+
+	log.Printf("캠페인 시작 시간(KST): %v, 종료 시간(KST): %v", startDateKST, expiredDateKST)
+	log.Printf("시작 시간 이전 여부: %v, 종료 시간 이후 여부: %v", now.Before(startDateKST), now.After(expiredDateKST))
+
+	// KST로 변환된 시간으로 비교
+	if now.Before(startDateKST) || now.After(expiredDateKST) {
 		return errors.New("coupon not valid at this time")
 	}
 
